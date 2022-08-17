@@ -14,12 +14,13 @@ desenhaMundo m = case status m of
             G.Color G.white $ G.Translate posXTitulo (posYTitulo - 350) $ G.Scale tamTitulo tamTitulo $ G.Text "Aperte Espaco para comecar"]
   Won -> G.Color G.white $ G.Translate posXTitulo posYTitulo $ G.Scale tamTitulo tamTitulo $ G.Text "mensagem vitoria"
   Lost -> G.Color G.white $ G.Translate posXTitulo posYTitulo $ G.Scale tamTitulo tamTitulo $ G.Text "mensagem derrota!"
-  _ -> playerPic
+  _ -> G.Pictures (playerPic : enemiesPics)
   where
     tamTitulo = 0.25
     posXTitulo = -300
     posYTitulo = fromIntegral (alturaTela) / 2 - 100
     playerPic = desenhaEntidade G.white (player m)
+    enemiesPics = map (desenhaEntidade G.red) (enemies m)
 
 desenhaEntidade :: G.Color -> Entity Float -> G.Picture
 desenhaEntidade c it = G.Color c $ G.Translate x y $ G.rectangleSolid sx sy
@@ -45,6 +46,9 @@ inputHandler (G.EventKey (G.SpecialKey G.KeySpace) G.Up       _ _) m = m {btnAct
 --inputHandler (G.EventKey (G.MouseButton G.LeftButton) G.Up    _ _) m = m {btnAction = False}
 inputHandler _ m = m
 
+idleH :: Float -> Mundo Float -> Mundo Float
+idleH = atualizaMundo
+
 main :: IO ()
 main = do
   rng <- randoms <$> newStdGen
@@ -56,5 +60,5 @@ main = do
     (inicializaMundo rng)
     desenhaMundo
     inputHandler 
-    atualizaMundo
+    idleH
   where janela = G.InWindow "Haskell Space Invaders" (larguraTela, alturaTela) (0, 0)
